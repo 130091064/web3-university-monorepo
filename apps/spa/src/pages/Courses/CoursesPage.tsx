@@ -1,20 +1,29 @@
-import { LearningFlowBar } from '@components/common/LearningFlowBar';
-import { useToast } from '@components/common/Toast';
-import { CourseList } from '@components/course/CourseList';
-import { CreateCourseForm } from '@components/course/CreateCourseForm';
+import { LearningFlowBar } from "@components/common/LearningFlowBar";
+import { useToast } from "@components/common/Toast";
+import { CourseList } from "@components/course/CourseList";
+import { CreateCourseForm } from "@components/course/CreateCourseForm";
 import {
   COURSE_MARKETPLACE_ADDRESS,
   courseMarketplaceAbi,
   YD_TOKEN_ADDRESS,
   ydTokenAbi,
-} from '@contracts';
-import { useCourses } from '@hooks/useCourses';
-import { useWaitForTransaction } from '@hooks/useWaitForTransaction';
-import type { UICourse } from '@types';
-import { useCallback, useEffect, useState } from 'react';
-import { parseTokenAmount, formatErrorMessage, isUserRejected } from '@lillianfish/libs';
-import { useChainId, useConnection, usePublicClient, useWriteContract } from 'wagmi';
-import { sepolia } from 'wagmi/chains';
+} from "@contracts";
+import { useCourses } from "@hooks/useCourses";
+import { useWaitForTransaction } from "@lillianfish/hooks";
+import type { UICourse } from "@types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  parseTokenAmount,
+  formatErrorMessage,
+  isUserRejected,
+} from "@lillianfish/libs";
+import {
+  useChainId,
+  useConnection,
+  usePublicClient,
+  useWriteContract,
+} from "wagmi";
+import { sepolia } from "wagmi/chains";
 
 const CoursesPage = () => {
   const { address, isConnected } = useConnection();
@@ -35,6 +44,14 @@ const CoursesPage = () => {
   const isOnSepolia = chainId === sepolia.id;
   const isWrongNetwork = isConnected && !isOnSepolia;
 
+  // ✅ 课程 id 的稳定 key：避免 courses 数组引用变化导致 effect 重复跑
+  const courseIdsKey = useMemo(() => {
+    return courses.map((c) => c.id.toString()).join(",");
+  }, [courses]);
+
+  // ✅ 防重入：避免 effect 因为 state 更新/重渲染导致并发重复请求
+  const inflightBuildRef = useRef<Promise<void> | null>(null);
+
   useEffect(() => {
     // 如果未连接钱包，直接清空UI课程列表
     if (!isConnected) {
@@ -42,7 +59,14 @@ const CoursesPage = () => {
       return;
     }
 
-    if (!publicClient || !courses.length) {
+    // 没课程：清空
+    if (!courses.length) {
+      setUiCourses([]);
+      return;
+    }
+
+    // publicClient 不可用：只用 courses 的基础信息构建 UI，不做链上查询
+    if (!publicClient) {
       setUiCourses(
         courses.map((c) => ({
           id: c.id,
@@ -50,18 +74,23 @@ const CoursesPage = () => {
           price: c.price,
           metadataURI: c.metadataURI,
           isActive: c.isActive,
-          studentCount: undefined,
-          createdAt: undefined,
-          isAuthor: !!address && c.author.toLowerCase() === address?.toLowerCase(),
+          studentCount: c.studentCount,
+          createdAt: c.createdAt,
+          isAuthor:
+            !!address && c.author.toLowerCase() === address?.toLowerCase(),
           hasPurchased: false,
-        })),
+        }))
       );
       return;
     }
 
-    const loadStates = async () => {
+    // ✅ 已经在构建中：不重复触发（止住持续请求）
+    if (inflightBuildRef.current) return;
+
+    inflightBuildRef.current = (async () => {
       try {
         const list: UICourse[] = [];
+
         for (const c of courses) {
           let hasPurchased = false;
 
@@ -69,7 +98,7 @@ const CoursesPage = () => {
             hasPurchased = (await publicClient.readContract({
               address: COURSE_MARKETPLACE_ADDRESS,
               abi: courseMarketplaceAbi,
-              functionName: 'hasPurchased',
+              functionName: "hasPurchased",
               args: [address, c.id],
             })) as boolean;
           }
@@ -82,13 +111,15 @@ const CoursesPage = () => {
             isActive: c.isActive,
             studentCount: c.studentCount,
             createdAt: c.createdAt,
-            isAuthor: !!address && c.author.toLowerCase() === address?.toLowerCase(),
+            isAuthor:
+              !!address && c.author.toLowerCase() === address?.toLowerCase(),
             hasPurchased,
           });
         }
+
         setUiCourses(list);
       } catch (err) {
-        console.error('build uiCourses error:', err);
+        console.error("build uiCourses error:", err);
         setUiCourses(
           courses.map((c) => ({
             id: c.id,
@@ -98,22 +129,22 @@ const CoursesPage = () => {
             isActive: c.isActive,
             studentCount: c.studentCount,
             createdAt: c.createdAt,
-            isAuthor: !!address && c.author.toLowerCase() === address?.toLowerCase(),
+            isAuthor:
+              !!address && c.author.toLowerCase() === address?.toLowerCase(),
             hasPurchased: false,
-          })),
+          }))
         );
+      } finally {
+        inflightBuildRef.current = null;
       }
-    };
-
-    loadStates();
-  }, [publicClient, courses, address, isConnected]);
+    })();
+  }, [publicClient, address, isConnected, courseIdsKey, courses]);
 
   const handleCreateCourse = useCallback(
     async (priceStr: string, metadataURI: string) => {
       if (!isConnected || !address || !publicClient) return;
       if (isWrongNetwork) {
-        // 只提示就好，不再往下走，避免再抛一堆链上错误
-        alert('当前网络暂不支持创建课程，请切换到 Sepolia Testnet 后再试。');
+        alert("当前网络暂不支持创建课程，请切换到 Sepolia Testnet 后再试。");
         return;
       }
       if (!priceStr || !metadataURI) return;
@@ -125,16 +156,16 @@ const CoursesPage = () => {
         const hash = await writeContractAsync({
           address: COURSE_MARKETPLACE_ADDRESS,
           abi: courseMarketplaceAbi,
-          functionName: 'createCourse',
+          functionName: "createCourse",
           args: [price, metadataURI],
         });
 
         await waitForReceipt(hash);
 
-        showSuccess('课程创建成功！');
+        showSuccess("课程创建成功！");
         setReloadKey((k) => k + 1);
       } catch (err) {
-        console.error('createCourse error:', err);
+        console.error("createCourse error:", err);
         if (isUserRejected(err)) {
           showWarning(formatErrorMessage(err));
         } else {
@@ -154,14 +185,14 @@ const CoursesPage = () => {
       showSuccess,
       showError,
       showWarning,
-    ],
+    ]
   );
 
   const handleBuyCourse = useCallback(
     async (courseId: bigint) => {
       if (!isConnected || !address || !publicClient) return;
       if (isWrongNetwork) {
-        alert('当前网络暂不支持购买课程，请切换到 Sepolia Testnet 后再试。');
+        alert("当前网络暂不支持购买课程，请切换到 Sepolia Testnet 后再试。");
         return;
       }
 
@@ -169,13 +200,13 @@ const CoursesPage = () => {
         setBuyingCourseId(courseId);
 
         const target = uiCourses.find((c) => c.id === courseId);
-        if (!target) throw new Error('Course not found in uiCourses');
+        if (!target) throw new Error("Course not found in uiCourses");
         const price = target.price;
 
         const allowance = (await publicClient.readContract({
           address: YD_TOKEN_ADDRESS,
           abi: ydTokenAbi,
-          functionName: 'allowance',
+          functionName: "allowance",
           args: [address, COURSE_MARKETPLACE_ADDRESS],
         })) as bigint;
 
@@ -183,7 +214,7 @@ const CoursesPage = () => {
           const approveHash = await writeContractAsync({
             address: YD_TOKEN_ADDRESS,
             abi: ydTokenAbi,
-            functionName: 'approve',
+            functionName: "approve",
             args: [COURSE_MARKETPLACE_ADDRESS, price],
           });
 
@@ -193,7 +224,7 @@ const CoursesPage = () => {
         const buyHash = await writeContractAsync({
           address: COURSE_MARKETPLACE_ADDRESS,
           abi: courseMarketplaceAbi,
-          functionName: 'buyCourse',
+          functionName: "buyCourse",
           args: [courseId],
         });
 
@@ -202,7 +233,7 @@ const CoursesPage = () => {
         showSuccess(`成功购买课程！`);
         setReloadKey((k) => k + 1);
       } catch (err) {
-        console.error('buyCourse error:', err);
+        console.error("buyCourse error:", err);
         if (isUserRejected(err)) {
           showWarning(formatErrorMessage(err));
         } else {
@@ -223,7 +254,7 @@ const CoursesPage = () => {
       showSuccess,
       showError,
       showWarning,
-    ],
+    ]
   );
 
   useEffect(() => {
@@ -239,12 +270,12 @@ const CoursesPage = () => {
   let friendlyError: string | null = null;
   if (error) {
     if (isWrongNetwork) {
-      friendlyError = '当前网络暂不支持读取课程记录，请在顶部切换到 Sepolia Testnet 后再查看。';
+      friendlyError =
+        "当前网络暂不支持读取课程记录，请在顶部切换到 Sepolia Testnet 后再查看。";
     } else {
-      friendlyError = '加载课程时出现问题，请稍后重试。';
+      friendlyError = "加载课程时出现问题，请稍后重试。";
     }
-    // 原始错误只打到控制台，不展示给用户
-    console.error('load courses error:', error);
+    console.error("load courses error:", error);
   }
 
   return (
@@ -255,12 +286,12 @@ const CoursesPage = () => {
         <p className="text-slate-300">基于区块链的课程发布与购买平台</p>
       </div>
 
-      <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+      <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
         <LearningFlowBar currentStep={3} />
       </div>
 
       {/* 创建课程表单 */}
-      <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
+      <div className="animate-slide-up" style={{ animationDelay: "0.2s" }}>
         <CreateCourseForm
           onCreate={handleCreateCourse}
           isCreating={creating}
@@ -269,7 +300,7 @@ const CoursesPage = () => {
       </div>
 
       {/* 课程列表 */}
-      <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
+      <div className="animate-slide-up" style={{ animationDelay: "0.3s" }}>
         <CourseList
           courses={uiCourses}
           onBuy={handleBuyCourse}
@@ -281,7 +312,7 @@ const CoursesPage = () => {
 
       {/* 友好错误提示 */}
       {friendlyError && (
-        <div className="rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 backdrop-blur-sm px-4 py-3 animate-slide-up">
+        <div className="rounded-xl bg-linear-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/30 backdrop-blur-sm px-4 py-3 animate-slide-up">
           <p className="text-sm text-amber-300">{friendlyError}</p>
         </div>
       )}

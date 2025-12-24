@@ -4,6 +4,23 @@
   "packageManager": "pnpm@10.25.0",
   "scripts": {
     "build": "pnpm -r build",
-    "dev": "pnpm --filter ./apps/spa dev"
+    "dev": "pnpm --filter ./apps/spa dev",
+    "build:libs": "pnpm --filter @lillianfish/libs build",
+    "build:hooks": "pnpm --filter @lillianfish/hooks build"
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "^5.90.12",
+    "@types/react": "^19.2.3",
+    "@types/react-dom": "^19.2.3",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "viem": "2.41.2",
+    "wagmi": "3.0.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.2.3",
+      "react-dom": "19.2.3"
+    }
   }
 }

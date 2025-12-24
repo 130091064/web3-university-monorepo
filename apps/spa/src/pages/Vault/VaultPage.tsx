@@ -3,7 +3,7 @@ import { LearningFlowBar } from '@components/common/LearningFlowBar';
 import { useToast } from '@components/common/Toast';
 import TransactionHistory from '@components/common/TransactionHistory';
 import { AAVE_VAULT_ADDRESS, aaveVaultAbi, MOCK_USDT_ADDRESS, mockUSDTAbi } from '@contracts';
-import { useAutoRefresh } from '@hooks/useAutoRefresh';
+import { useAutoRefresh } from '@lillianfish/hooks';
 import { useTransactionHistory } from '@hooks/useTransactionHistory';
 import { useVaultAssets } from '@hooks/useVaultAssets';
 import { useWalletStatus } from '@hooks/useWalletStatus';

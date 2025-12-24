@@ -1,7 +1,7 @@
 import { useConfirmDialog } from '@components/common/ConfirmDialog';
 import { useToast } from '@components/common/Toast';
 import { YD_SALE_ADDRESS, ydSaleAbi } from '@contracts';
-import { useWaitForTransaction } from '@hooks/useWaitForTransaction';
+import { useWaitForTransaction } from '@lillianfish/hooks';
 import { formatErrorMessage, isUserRejected } from '@lillianfish/libs';
 import { useCallback, useEffect, useState } from 'react';
 import { useConnection, usePublicClient, useWriteContract } from 'wagmi';
