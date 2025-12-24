@@ -1,0 +1,38 @@
+{
+  "name": "@lillianfish/hooks",
+  "version": "0.0.1",
+  "private": false,
+
+  "main": "dist/index.cjs",
+  "module": "dist/index.module.js",
+  "types": "dist/index.d.ts",
+
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.module.js"
+    }
+  },
+
+  "files": ["dist"],
+
+  "dependencies": {
+    "@lillianfish/libs": "workspace:*"
+  },
+
+  "scripts": {
+    "build": "microbundle --tsconfig tsconfig.json --format cjs,modern --no-sourcemap",
+    "prepublishOnly": "pnpm build"
+  },
+
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "restricted"
+  },
+
+  "devDependencies": {
+    "microbundle": "^0.15.1",
+    "typescript": "^5.0.0"
+  }
+}

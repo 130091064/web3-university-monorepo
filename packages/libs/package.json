@@ -1,0 +1,39 @@
+{
+  "name": "@lillianfish/libs",
+  "version": "0.0.1",
+  "private": false,
+
+  "main": "dist/index.cjs",
+  "module": "dist/index.modern.js",
+  "types": "dist/index.d.ts",
+
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.modern.js"
+    }
+  },
+
+  "files": ["dist"],
+
+  "scripts": {
+    "build": "microbundle --tsconfig tsconfig.json --format cjs,modern --no-sourcemap",
+    "prepublishOnly": "pnpm build"
+  },
+
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "restricted"
+  },
+
+  "peerDependencies": {
+    "viem": "^2.41.2"
+  },
+
+  "devDependencies": {
+    "microbundle": "^0.15.1",
+    "typescript": "^5.0.0",
+    "viem": "2.41.2"
+  }
+}
