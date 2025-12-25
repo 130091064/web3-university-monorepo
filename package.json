@@ -6,21 +6,23 @@
     "build": "pnpm -r build",
     "dev": "pnpm --filter ./apps/spa dev",
     "build:libs": "pnpm --filter @lillianfish/libs build",
-    "build:hooks": "pnpm --filter @lillianfish/hooks build"
+    "build:hooks": "pnpm --filter @lillianfish/hooks build",
+    "build:ui": "pnpm --filter @lillianfish/ui build",
+    "dev:storybook": "pnpm --filter ./apps/storybook storybook"
   },
   "devDependencies": {
     "@tanstack/react-query": "^5.90.12",
-    "@types/react": "^19.2.3",
-    "@types/react-dom": "^19.2.3",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "@types/react": "19.2.1",
+    "@types/react-dom": "19.2.1",
+    "react": "19.2.1",
+    "react-dom": "19.2.1",
     "viem": "2.41.2",
     "wagmi": "3.0.2"
   },
   "pnpm": {
     "overrides": {
-      "react": "19.2.3",
-      "react-dom": "19.2.3"
+      "react": "19.2.1",
+      "react-dom": "19.2.1"
     }
   }
 }

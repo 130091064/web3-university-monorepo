@@ -35,3 +35,5 @@ cypress/downloads/
 *.sln
 *.sw?
 .env
+*storybook.log
+storybook-static
