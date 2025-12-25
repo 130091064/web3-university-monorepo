@@ -1,12 +1,21 @@
-import { defineConfig } from "tsup";
+import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ["src/index.ts"],
-  format: ["cjs", "esm"],
+  entry: ['src/index.ts'],
+  format: ['cjs', 'esm'],
   dts: true,
-  sourcemap: true,
   clean: true,
-  splitting: false,
+  sourcemap: false,
+  external: ['react', 'react-dom'],
   treeshake: true,
-  external: ["react", "react-dom"]
+  splitting: false,
+  minify: false,
+  // 注入 CSS
+  injectStyle: false,
+  // 保留 CSS 作为单独的文件
+  esbuildOptions(options) {
+    options.banner = {
+      js: '"use client";',
+    };
+  },
 });
