@@ -3,6 +3,7 @@ import { mainnet, sepolia } from 'wagmi/chains';
 import { injected } from 'wagmi/connectors';
 
 const VITE_INFURA_SEPOLIA_URL = (process.env.VITE_INFURA_SEPOLIA_URL as string) || '';
+const VITE_INFURA_MAINNET_URL = (process.env.VITE_INFURA_MAINNET_URL as string) || '';
 
 export const config = createConfig({
   chains: [sepolia, mainnet],
@@ -13,6 +14,6 @@ export const config = createConfig({
   ],
   transports: {
     [sepolia.id]: http(VITE_INFURA_SEPOLIA_URL),
-    [mainnet.id]: http(), // ENS 查询走主网
+    [mainnet.id]: http(VITE_INFURA_MAINNET_URL), // ENS 查询走主网
   },
 });

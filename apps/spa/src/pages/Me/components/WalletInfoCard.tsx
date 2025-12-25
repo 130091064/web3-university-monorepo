@@ -4,7 +4,7 @@ interface WalletInfoCardProps {
   address?: string;
   ensName?: string;
   ensAvatar?: string | null;
-  chainId: number;
+  chainId: number | null;
   displayNickname: string;
   profileUpdatedAt?: number;
   isLoadingProfile: boolean;

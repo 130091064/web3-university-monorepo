@@ -1,7 +1,7 @@
 import { useCourses } from "@hooks/useCourses";
 import { useProfile } from "@hooks/useProfile";
 import { usePurchasedCourses } from "@hooks/usePurchasedCourses";
-import { useWalletStatus } from "@hooks/useWalletStatus";
+import { useWalletStatus } from "@lillianfish/hooks";
 import type { Course } from "@types";
 import { useMemo, useState } from "react";
 import type { Address } from "viem";
@@ -13,7 +13,7 @@ import { WalletInfoCard } from "./components/WalletInfoCard";
 import { shortenAddress } from "@lillianfish/libs";
 
 const MePage = () => {
-  const { address, chainId, isConnected, isWrongNetwork } = useWalletStatus();
+  const { address, resolvedChainId, isConnected, isWrongNetwork } = useWalletStatus();
 
   const MAINNET_CHAIN_ID = 1; // ENS 固定使用主网
 
@@ -21,12 +21,28 @@ const MePage = () => {
   const { data: ensName } = useEnsName({
     address,
     chainId: MAINNET_CHAIN_ID,
+    query: {
+      enabled: Boolean(address) && isConnected,
+      staleTime: 10 * 60 * 1000,
+      retry: 1,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   });
   const ensNameString = typeof ensName === "string" ? ensName : undefined;
 
   const { data: ensAvatar } = useEnsAvatar({
     name: ensNameString,
     chainId: MAINNET_CHAIN_ID,
+    query: {
+      enabled: Boolean(ensNameString) && isConnected,
+      staleTime: 10 * 60 * 1000,
+      retry: 1,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   });
 
   // 使用 useProfile Hook 管理个人资料
@@ -156,7 +172,7 @@ const MePage = () => {
                   address={address}
                   ensName={ensNameString}
                   ensAvatar={ensAvatar}
-                  chainId={chainId}
+                  chainId={resolvedChainId}
                   displayNickname={displayNickname}
                   profileUpdatedAt={profile?.updatedAt}
                   isLoadingProfile={isLoadingProfile}

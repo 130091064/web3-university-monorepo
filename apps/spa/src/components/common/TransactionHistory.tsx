@@ -1,4 +1,4 @@
-import type { Transaction } from '@hooks/useTransactionHistory';
+import type { Transaction } from '@lillianfish/hooks';
 import { useState } from 'react';
 
 interface TransactionHistoryProps {

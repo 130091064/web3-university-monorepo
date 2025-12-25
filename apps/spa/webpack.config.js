@@ -97,6 +97,9 @@ const webpackBaseConfig = {
       'process.env.VITE_INFURA_SEPOLIA_URL': JSON.stringify(
         process.env.VITE_INFURA_SEPOLIA_URL || '',
       ),
+      'process.env.VITE_INFURA_MAINNET_URL': JSON.stringify(
+        process.env.VITE_INFURA_MAINNET_URL || '',
+      ),
       'process.env.VITE_PROFILE_API_BASE_URL': JSON.stringify(
         process.env.VITE_PROFILE_API_BASE_URL || '',
       ),

@@ -30,13 +30,29 @@ const Header = () => {
   const { data: ensName } = useEnsName({
     address,
     chainId: mainnet.id,
-    query: { enabled: Boolean(address) },
+    query: {
+      enabled: Boolean(address) && isConnected,
+      staleTime: 10 * 60 * 1000,
+      retry: 1,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   });
 
+  const ensNameString = typeof ensName === 'string' ? ensName : undefined;
+
   const { data: ensAvatar } = useEnsAvatar({
-    name: ensName!,
+    name: ensNameString,
     chainId: mainnet.id,
-    query: { enabled: Boolean(ensName) },
+    query: {
+      enabled: Boolean(ensNameString) && isConnected,
+      staleTime: 10 * 60 * 1000,
+      retry: 1,
+      refetchOnMount: false,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
   });
 
   const activeConnector = connectors[0];
@@ -166,7 +182,7 @@ const Header = () => {
                   </div>
                 )}
                 <span className="max-w-[100px] truncate text-xs font-semibold text-white">
-                  {ensName ?? shorten(address)}
+                  {ensNameString ?? shorten(address)}
                 </span>
                 <button
                   onClick={() => disconnect()}
