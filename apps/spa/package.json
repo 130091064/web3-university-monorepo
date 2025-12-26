@@ -1,8 +1,9 @@
 {
-  "name": "awesome-frontend",
-  "version": "1.0.0",
+  "name": "web3-university-frontend",
+  "version": "1.0.1",
   "main": "index.js",
   "license": "MIT",
+  "private": true,
   "sideEffects": [
     "*.css",
     "src/main.tsx",
@@ -64,8 +65,9 @@
     "yargs-parser": "^22.0.0"
   },
   "dependencies": {
-    "@lillianfish/hooks": "workspace:*",
-    "@lillianfish/libs": "workspace:*",
+    "@lillianfish/hooks": "^0.1.0",
+    "@lillianfish/libs": "^0.1.0",
+    "@lillianfish/ui": "^0.1.0",
     "@safe-global/safe-apps-sdk": "^9.1.0",
     "@tanstack/react-query": "^5.90.12",
     "react": "19.2.1",
