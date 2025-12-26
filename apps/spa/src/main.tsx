@@ -5,6 +5,7 @@ import { config } from '@config/wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider } from 'wagmi';
 import App from './App';
+import "@lillianfish/ui/styles.css";
 
 const queryClient = new QueryClient();
 

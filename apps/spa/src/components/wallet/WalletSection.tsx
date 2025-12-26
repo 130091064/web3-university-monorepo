@@ -1,3 +1,4 @@
+import { Button } from '@lillianfish/ui';
 interface WalletSectionProps {
   address?: string;
   ydBalance?: string;
@@ -7,12 +8,7 @@ interface WalletSectionProps {
 
 const shorten = (addr?: string) => (addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '');
 
-export const WalletSection = ({
-  address,
-  ydBalance,
-  isConnected,
-  onRefresh,
-}: WalletSectionProps) => {
+export const WalletSection = ({ address, ydBalance, isConnected, onRefresh }: WalletSectionProps) => {
   return (
     <section className="flex h-full min-h-[280px] flex-col">
       {/* 头部 */}
@@ -33,13 +29,9 @@ export const WalletSection = ({
         </div>
 
         {isConnected && onRefresh && (
-          <button
-            onClick={onRefresh}
-            type="button"
-            className="inline-flex items-center cursor-pointer rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/15 hover:text-white hover:border-blue-400/50 active:scale-95"
-          >
+          <Button size="sm" variant="accent" className="cursor-pointer" onClick={onRefresh}>
             🔄 刷新
-          </button>
+          </Button>
         )}
       </div>
 

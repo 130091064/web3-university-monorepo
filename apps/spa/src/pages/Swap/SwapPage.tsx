@@ -8,6 +8,7 @@ import { useWaitForTransaction, useTransactionHistory, useWalletStatus, useAutoR
 import { useCallback, useEffect, useState } from 'react';
 import { usePublicClient, useWriteContract } from 'wagmi';
 import { parseTokenAmount, formatUnitsString, formatErrorMessage, isUserRejected } from '@lillianfish/libs';
+import { Button } from '@lillianfish/ui';
 
 const SwapPage = () => {
   const { address, isConnected, isWrongNetwork } = useWalletStatus();
@@ -201,13 +202,9 @@ const SwapPage = () => {
                 </h2>
                 <p className="mt-1 text-sm text-slate-300">将课程收入中的 YD 按汇率兑换为 USDT</p>
               </div>
-              <button
-                onClick={manualRefresh}
-                type="button"
-                className="inline-flex items-center cursor-pointer rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/15 hover:text-white hover:border-emerald-400/50 active:scale-95"
-              >
+              <Button size="sm" variant="accent" className="cursor-pointer" onClick={manualRefresh}>
                 🔄 刷新汇率
-              </button>
+              </Button>
             </div>
 
             {/* 余额 & 汇率 */}

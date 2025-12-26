@@ -12,27 +12,20 @@ import { useWriteContract } from 'wagmi';
 import { DepositForm } from './components/DepositForm';
 import { VaultStats } from './components/VaultStats';
 import { WithdrawForm } from './components/WithdrawForm';
+import { Button } from '@lillianfish/ui';
 
 const VaultPage = () => {
   const { address, isConnected, isWrongNetwork } = useWalletStatus();
   const { writeContractAsync, isPending } = useWriteContract();
   const { showSuccess, showError, showWarning, ToastComponent } = useToast();
   const { confirm, DialogComponent } = useConfirmDialog();
-  const { transactions, addTransaction, updateTransaction, clearHistory } =
-    useTransactionHistory(address);
+  const { transactions, addTransaction, updateTransaction, clearHistory } = useTransactionHistory(address);
 
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // 使用 useVaultAssets Hook 获取资产数据
-  const {
-    userUsdtBalance,
-    userVaultBalance,
-    totalAssets,
-    currentIndex,
-    apyDisplay,
-    refresh,
-    decimals,
-  } = useVaultAssets(address, isConnected);
+  const { userUsdtBalance, userVaultBalance, totalAssets, currentIndex, apyDisplay, refresh, decimals } =
+    useVaultAssets(address, isConnected);
 
   // 自动刷新（每30秒）
   const manualRefresh = useAutoRefresh(refresh, {
@@ -55,11 +48,7 @@ const VaultPage = () => {
     }
 
     // 确认弹窗
-    const confirmed = await confirm(
-      '确认存入',
-      `您将存入 ${depositAmount} USDT 到理财金库，确认继续？`,
-      'info',
-    );
+    const confirmed = await confirm('确认存入', `您将存入 ${depositAmount} USDT 到理财金库，确认继续？`, 'info');
     if (!confirmed) return;
 
     // 添加待处理交易记录
@@ -132,11 +121,7 @@ const VaultPage = () => {
     }
 
     // 确认弹窗
-    const confirmed = await confirm(
-      '确认取出',
-      `您将从金库取出 ${withdrawAmount} USDT，确认继续？`,
-      'warning',
-    );
+    const confirmed = await confirm('确认取出', `您将从金库取出 ${withdrawAmount} USDT，确认继续？`, 'warning');
     if (!confirmed) return;
 
     // 添加待处理交易记录
@@ -209,27 +194,19 @@ const VaultPage = () => {
                 <span className="inline-block w-1.5 h-5 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full"></span>
                 USDT 理财金库
               </h2>
-              <p className="mt-1 text-sm text-slate-300">
-                将 USDT 存入金库，按链上利率自动计息，可随时取出
-              </p>
+              <p className="mt-1 text-sm text-slate-300">将 USDT 存入金库，按链上利率自动计息，可随时取出</p>
             </div>
             {isConnected && (
-              <button
-                onClick={manualRefresh}
-                type="button"
-                className="inline-flex items-center cursor-pointer rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/15 hover:text-white hover:border-purple-400/50 active:scale-95"
-              >
+              <Button size="sm" variant="accent" className="cursor-pointer" onClick={manualRefresh}>
                 🔄 刷新资产
-              </button>
+              </Button>
             )}
           </div>
 
           {/* 未连接提示 */}
           {!isConnected && (
             <div className="mb-5 rounded-xl bg-amber-500/10 border border-amber-500/30 backdrop-blur-sm px-4 py-3">
-              <p className="text-sm text-amber-300">
-                当前未连接钱包，连接后可查看金库资产并进行存取操作
-              </p>
+              <p className="text-sm text-amber-300">当前未连接钱包，连接后可查看金库资产并进行存取操作</p>
             </div>
           )}
 

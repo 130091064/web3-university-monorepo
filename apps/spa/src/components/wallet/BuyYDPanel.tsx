@@ -6,6 +6,7 @@ import { formatErrorMessage, isUserRejected } from '@lillianfish/libs';
 import { useCallback, useEffect, useState } from 'react';
 import { useConnection, usePublicClient, useWriteContract } from 'wagmi';
 import { parseEtherAmount, formatUnitsString } from '@lillianfish/libs';
+import { Button } from '@lillianfish/ui';
 
 interface BuyYDPanelProps {
   onBuySuccess?: () => void;
@@ -111,13 +112,9 @@ const BuyYDPanel = ({ onBuySuccess }: BuyYDPanelProps) => {
           <span className="inline-block w-1.5 h-5 bg-gradient-to-b from-emerald-500 to-cyan-500 rounded-full"></span>
           购买 YD
         </h2>
-        <button
-          type="button"
-          onClick={() => void loadRate()}
-          className="inline-flex items-center cursor-pointer rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 text-xs font-medium text-slate-300 transition hover:bg-white/15 hover:text-white hover:border-emerald-400/50 active:scale-95"
-        >
+        <Button size="sm" variant="accent" className="cursor-pointer" onClick={() => void loadRate()}>
           🔄 刷新
-        </button>
+        </Button>
       </div>
 
       {/* 主体内容 */}
