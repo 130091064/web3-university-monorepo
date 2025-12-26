@@ -1,5 +1,5 @@
 {
-  "name": "zk-monorepo-web3-university",
+  "name": "@lillianfish/monorepo",
   "private": true,
   "packageManager": "pnpm@10.25.0",
   "scripts": {
